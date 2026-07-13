@@ -1,0 +1,318 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AlphaPolicy": {
+      "description": "Alpha channel policy for a given platform budget.",
+      "enum": [
+        "required",
+        "optional",
+        "forbidden"
+      ],
+      "type": "string"
+    },
+    "AssetRole": {
+      "description": "The six-role vocabulary for asset classification.\n\nRoles are deliberately distinct, even when some have empty user populations today. Downstream tasks add new evidence for `Derived` and `Mirror Target`; modelling them now keeps the on-disk schema stable.",
+      "oneOf": [
+        {
+          "description": "The original, hand-authored art for an asset family.",
+          "enum": [
+            "source"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "The build output that ships with the game.",
+          "enum": [
+            "runtime"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Anything generated from a Source by Workmen (previews, mirrored copies, packed atlases, ...).",
+          "enum": [
+            "derived"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "A copy of a Runtime asset created for a specific target platform (web/iOS/Android) by a separate export pipeline. Always linked back to one Runtime asset.",
+          "enum": [
+            "mirrorTarget"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "An asset that exists but is intentionally out of scope for the active profile (deprecated, rejected, license-blocked, ...).",
+          "enum": [
+            "excluded"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "A scanned file that we could not classify with the available evidence. Held in the Unclassified Queue until the user resolves it.",
+          "enum": [
+            "unclassified"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "Compression": {
+      "description": "Compression codec negotiated for the runtime asset on a platform.",
+      "enum": [
+        "none",
+        "png",
+        "webP"
+      ],
+      "type": "string"
+    },
+    "NamingRule": {
+      "description": "A naming rule applied before raising naming violations.",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "description",
+        "pattern"
+      ],
+      "type": "object"
+    },
+    "Platform": {
+      "description": "Target platform a Profile budgets for.",
+      "enum": [
+        "web",
+        "ios",
+        "android"
+      ],
+      "type": "string"
+    },
+    "PlatformBudget": {
+      "description": "A platform-specific budget used by the validator.",
+      "properties": {
+        "alphaPolicy": {
+          "$ref": "#/definitions/AlphaPolicy"
+        },
+        "colorSpace": {
+          "description": "Free-form string describing the color space (e.g. `\"sRGB\"`).",
+          "type": "string"
+        },
+        "compression": {
+          "$ref": "#/definitions/Compression"
+        },
+        "maxDecodedBytes": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "maxEncodedBytes": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "maxTextureHeight": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "maxTextureWidth": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "platform": {
+          "$ref": "#/definitions/Platform"
+        },
+        "potNpot": {
+          "$ref": "#/definitions/PotNpot"
+        }
+      },
+      "required": [
+        "alphaPolicy",
+        "colorSpace",
+        "compression",
+        "maxDecodedBytes",
+        "maxEncodedBytes",
+        "maxTextureHeight",
+        "maxTextureWidth",
+        "platform",
+        "potNpot"
+      ],
+      "type": "object"
+    },
+    "PotNpot": {
+      "description": "Whether the platform requires power-of-two texture dimensions.",
+      "oneOf": [
+        {
+          "description": "Strictly power-of-two. Non-POT assets are validation errors.",
+          "enum": [
+            "powerOfTwo"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Any dimensions are accepted.",
+          "enum": [
+            "any"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "ProfileException": {
+      "description": "A bounded, auditable exception to a Profile rule.\n\n`expires_at` is an ISO-8601 timestamp string (`chrono` is intentionally avoided for this task to keep the dependency surface small — future revisions will replace `String` with `chrono::DateTime<Utc>`).",
+      "properties": {
+        "assetMatcher": {
+          "$ref": "#/definitions/ProfileMatcher"
+        },
+        "expiresAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "ruleId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "assetMatcher",
+        "reason",
+        "ruleId"
+      ],
+      "type": "object"
+    },
+    "ProfileMatcher": {
+      "description": "A predicate that selects assets into a Profile.\n\nEach field is optional. An empty [`ProfileMatcher`] matches every asset — usually a bug, but legitimate for the \"default\" Profile.",
+      "properties": {
+        "assetRole": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AssetRole"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional role filter; `None` accepts any role."
+        },
+        "extension": {
+          "description": "Extension without the leading dot.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "namingPattern": {
+          "description": "Regex-style naming pattern (the syntax T5 will pin down).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pathGlob": {
+          "description": "Project-relative glob (`.workmen`-style anchored to project root).",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ProfileState": {
+      "description": "Lifecycle state of a [`Profile`].\n\n* `Draft` — the profile is being edited; not authoritative. * `Active` — the profile is the contract of record. * `Locked` — the profile cannot be edited; bumps require explicit unlock with a non-empty reason.",
+      "enum": [
+        "draft",
+        "active",
+        "locked"
+      ],
+      "type": "string"
+    },
+    "SourceRuntimeRelationship": {
+      "description": "Declared edge between a Source asset and a Runtime asset.",
+      "properties": {
+        "runtimePath": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "runtimePath",
+        "sourcePath"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "The Workmen profile contract. See module docs for field semantics.\n\nThe `schema_version` field is deserialized through a custom function that enforces the supported version. Unknown versions fail at deserialization time (rather than at first use) so a stale cache or stale in-memory copy never silently disagrees with the on-disk file.",
+  "properties": {
+    "budgets": {
+      "items": {
+        "$ref": "#/definitions/PlatformBudget"
+      },
+      "type": "array"
+    },
+    "exceptions": {
+      "items": {
+        "$ref": "#/definitions/ProfileException"
+      },
+      "type": "array"
+    },
+    "id": {
+      "type": "string"
+    },
+    "matchers": {
+      "items": {
+        "$ref": "#/definitions/ProfileMatcher"
+      },
+      "type": "array"
+    },
+    "namingRules": {
+      "items": {
+        "$ref": "#/definitions/NamingRule"
+      },
+      "type": "array"
+    },
+    "profileRevision": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "schemaVersion": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "sourceRuntime": {
+      "items": {
+        "$ref": "#/definitions/SourceRuntimeRelationship"
+      },
+      "type": "array"
+    },
+    "state": {
+      "$ref": "#/definitions/ProfileState"
+    }
+  },
+  "required": [
+    "budgets",
+    "exceptions",
+    "id",
+    "matchers",
+    "namingRules",
+    "profileRevision",
+    "schemaVersion",
+    "sourceRuntime",
+    "state"
+  ],
+  "title": "Profile",
+  "type": "object"
+}
