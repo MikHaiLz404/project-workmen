@@ -1,0 +1,15 @@
+[package]
+name = "workmen-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "Core library for the Workmen game-asset workbench: domain models, error type, shared traits."
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+schemars = { workspace = true }
+thiserror = { workspace = true }
