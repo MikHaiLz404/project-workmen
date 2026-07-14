@@ -97,6 +97,10 @@ pub enum AlphaPolicy {
 pub enum Compression {
     None,
     Png,
+    /// WebP. Note: serializes to `"webP"` (camelCase of the variant name),
+    /// not the all-lowercase `"webp"` that some consumers may expect. This
+    /// is deliberate for consistency with the other camelCase variants
+    /// in this enum.
     WebP,
 }
 
@@ -189,11 +193,6 @@ pub enum ProfileState {
     Active,
     Locked,
 }
-
-/// Re-export of [`crate::model::asset::AssetRole`] for callers that
-/// include the profile module directly. Avoids needing to import the
-/// asset module separately in user code.
-pub type AssetRoleRef = AssetRole;
 
 /// The Workmen profile contract. See module docs for field semantics.
 ///

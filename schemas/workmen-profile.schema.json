@@ -1,73 +1,150 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Profile",
+  "description": "The Workmen profile contract. See module docs for field semantics.\n\nThe `schema_version` field is deserialized through a custom function that enforces the supported version. Unknown versions fail at deserialization time (rather than at first use) so a stale cache or stale in-memory copy never silently disagrees with the on-disk file.",
+  "type": "object",
+  "required": [
+    "budgets",
+    "exceptions",
+    "id",
+    "matchers",
+    "namingRules",
+    "profileRevision",
+    "schemaVersion",
+    "sourceRuntime",
+    "state"
+  ],
+  "properties": {
+    "budgets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PlatformBudget"
+      }
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProfileException"
+      }
+    },
+    "id": {
+      "type": "string"
+    },
+    "matchers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProfileMatcher"
+      }
+    },
+    "namingRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/NamingRule"
+      }
+    },
+    "profileRevision": {
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0.0
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0.0
+    },
+    "sourceRuntime": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SourceRuntimeRelationship"
+      }
+    },
+    "state": {
+      "$ref": "#/definitions/ProfileState"
+    }
+  },
   "definitions": {
     "AlphaPolicy": {
       "description": "Alpha channel policy for a given platform budget.",
+      "type": "string",
       "enum": [
         "required",
         "optional",
         "forbidden"
-      ],
-      "type": "string"
+      ]
     },
     "AssetRole": {
       "description": "The six-role vocabulary for asset classification.\n\nRoles are deliberately distinct, even when some have empty user populations today. Downstream tasks add new evidence for `Derived` and `Mirror Target`; modelling them now keeps the on-disk schema stable.",
       "oneOf": [
         {
           "description": "The original, hand-authored art for an asset family.",
+          "type": "string",
           "enum": [
             "source"
-          ],
-          "type": "string"
+          ]
         },
         {
           "description": "The build output that ships with the game.",
+          "type": "string",
           "enum": [
             "runtime"
-          ],
-          "type": "string"
+          ]
         },
         {
           "description": "Anything generated from a Source by Workmen (previews, mirrored copies, packed atlases, ...).",
+          "type": "string",
           "enum": [
             "derived"
-          ],
-          "type": "string"
+          ]
         },
         {
           "description": "A copy of a Runtime asset created for a specific target platform (web/iOS/Android) by a separate export pipeline. Always linked back to one Runtime asset.",
+          "type": "string",
           "enum": [
             "mirrorTarget"
-          ],
-          "type": "string"
+          ]
         },
         {
           "description": "An asset that exists but is intentionally out of scope for the active profile (deprecated, rejected, license-blocked, ...).",
+          "type": "string",
           "enum": [
             "excluded"
-          ],
-          "type": "string"
+          ]
         },
         {
           "description": "A scanned file that we could not classify with the available evidence. Held in the Unclassified Queue until the user resolves it.",
+          "type": "string",
           "enum": [
             "unclassified"
-          ],
-          "type": "string"
+          ]
         }
       ]
     },
     "Compression": {
       "description": "Compression codec negotiated for the runtime asset on a platform.",
-      "enum": [
-        "none",
-        "png",
-        "webP"
-      ],
-      "type": "string"
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "none",
+            "png"
+          ]
+        },
+        {
+          "description": "WebP. Note: serializes to `\"webP\"` (camelCase of the variant name), not the all-lowercase `\"webp\"` that some consumers may expect. This is deliberate for consistency with the other camelCase variants in this enum.",
+          "type": "string",
+          "enum": [
+            "webP"
+          ]
+        }
+      ]
     },
     "NamingRule": {
       "description": "A naming rule applied before raising naming violations.",
+      "type": "object",
+      "required": [
+        "description",
+        "pattern"
+      ],
       "properties": {
         "description": {
           "type": "string"
@@ -75,24 +152,31 @@
         "pattern": {
           "type": "string"
         }
-      },
-      "required": [
-        "description",
-        "pattern"
-      ],
-      "type": "object"
+      }
     },
     "Platform": {
       "description": "Target platform a Profile budgets for.",
+      "type": "string",
       "enum": [
         "web",
         "ios",
         "android"
-      ],
-      "type": "string"
+      ]
     },
     "PlatformBudget": {
       "description": "A platform-specific budget used by the validator.",
+      "type": "object",
+      "required": [
+        "alphaPolicy",
+        "colorSpace",
+        "compression",
+        "maxDecodedBytes",
+        "maxEncodedBytes",
+        "maxTextureHeight",
+        "maxTextureWidth",
+        "platform",
+        "potNpot"
+      ],
       "properties": {
         "alphaPolicy": {
           "$ref": "#/definitions/AlphaPolicy"
@@ -105,24 +189,24 @@
           "$ref": "#/definitions/Compression"
         },
         "maxDecodedBytes": {
+          "type": "integer",
           "format": "uint64",
-          "minimum": 0.0,
-          "type": "integer"
+          "minimum": 0.0
         },
         "maxEncodedBytes": {
+          "type": "integer",
           "format": "uint64",
-          "minimum": 0.0,
-          "type": "integer"
+          "minimum": 0.0
         },
         "maxTextureHeight": {
+          "type": "integer",
           "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
+          "minimum": 0.0
         },
         "maxTextureWidth": {
+          "type": "integer",
           "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
+          "minimum": 0.0
         },
         "platform": {
           "$ref": "#/definitions/Platform"
@@ -130,41 +214,35 @@
         "potNpot": {
           "$ref": "#/definitions/PotNpot"
         }
-      },
-      "required": [
-        "alphaPolicy",
-        "colorSpace",
-        "compression",
-        "maxDecodedBytes",
-        "maxEncodedBytes",
-        "maxTextureHeight",
-        "maxTextureWidth",
-        "platform",
-        "potNpot"
-      ],
-      "type": "object"
+      }
     },
     "PotNpot": {
       "description": "Whether the platform requires power-of-two texture dimensions.",
       "oneOf": [
         {
           "description": "Strictly power-of-two. Non-POT assets are validation errors.",
+          "type": "string",
           "enum": [
             "powerOfTwo"
-          ],
-          "type": "string"
+          ]
         },
         {
           "description": "Any dimensions are accepted.",
+          "type": "string",
           "enum": [
             "any"
-          ],
-          "type": "string"
+          ]
         }
       ]
     },
     "ProfileException": {
       "description": "A bounded, auditable exception to a Profile rule.\n\n`expires_at` is an ISO-8601 timestamp string (`chrono` is intentionally avoided for this task to keep the dependency surface small — future revisions will replace `String` with `chrono::DateTime<Utc>`).",
+      "type": "object",
+      "required": [
+        "assetMatcher",
+        "reason",
+        "ruleId"
+      ],
       "properties": {
         "assetMatcher": {
           "$ref": "#/definitions/ProfileMatcher"
@@ -181,18 +259,14 @@
         "ruleId": {
           "type": "string"
         }
-      },
-      "required": [
-        "assetMatcher",
-        "reason",
-        "ruleId"
-      ],
-      "type": "object"
+      }
     },
     "ProfileMatcher": {
       "description": "A predicate that selects assets into a Profile.\n\nEach field is optional. An empty [`ProfileMatcher`] matches every asset — usually a bug, but legitimate for the \"default\" Profile.",
+      "type": "object",
       "properties": {
         "assetRole": {
+          "description": "Optional role filter; `None` accepts any role.",
           "anyOf": [
             {
               "$ref": "#/definitions/AssetRole"
@@ -200,8 +274,7 @@
             {
               "type": "null"
             }
-          ],
-          "description": "Optional role filter; `None` accepts any role."
+          ]
         },
         "extension": {
           "description": "Extension without the leading dot.",
@@ -224,20 +297,24 @@
             "null"
           ]
         }
-      },
-      "type": "object"
+      }
     },
     "ProfileState": {
       "description": "Lifecycle state of a [`Profile`].\n\n* `Draft` — the profile is being edited; not authoritative. * `Active` — the profile is the contract of record. * `Locked` — the profile cannot be edited; bumps require explicit unlock with a non-empty reason.",
+      "type": "string",
       "enum": [
         "draft",
         "active",
         "locked"
-      ],
-      "type": "string"
+      ]
     },
     "SourceRuntimeRelationship": {
       "description": "Declared edge between a Source asset and a Runtime asset.",
+      "type": "object",
+      "required": [
+        "runtimePath",
+        "sourcePath"
+      ],
       "properties": {
         "runtimePath": {
           "type": "string"
@@ -245,74 +322,7 @@
         "sourcePath": {
           "type": "string"
         }
-      },
-      "required": [
-        "runtimePath",
-        "sourcePath"
-      ],
-      "type": "object"
+      }
     }
-  },
-  "description": "The Workmen profile contract. See module docs for field semantics.\n\nThe `schema_version` field is deserialized through a custom function that enforces the supported version. Unknown versions fail at deserialization time (rather than at first use) so a stale cache or stale in-memory copy never silently disagrees with the on-disk file.",
-  "properties": {
-    "budgets": {
-      "items": {
-        "$ref": "#/definitions/PlatformBudget"
-      },
-      "type": "array"
-    },
-    "exceptions": {
-      "items": {
-        "$ref": "#/definitions/ProfileException"
-      },
-      "type": "array"
-    },
-    "id": {
-      "type": "string"
-    },
-    "matchers": {
-      "items": {
-        "$ref": "#/definitions/ProfileMatcher"
-      },
-      "type": "array"
-    },
-    "namingRules": {
-      "items": {
-        "$ref": "#/definitions/NamingRule"
-      },
-      "type": "array"
-    },
-    "profileRevision": {
-      "format": "uint32",
-      "minimum": 0.0,
-      "type": "integer"
-    },
-    "schemaVersion": {
-      "format": "uint32",
-      "minimum": 0.0,
-      "type": "integer"
-    },
-    "sourceRuntime": {
-      "items": {
-        "$ref": "#/definitions/SourceRuntimeRelationship"
-      },
-      "type": "array"
-    },
-    "state": {
-      "$ref": "#/definitions/ProfileState"
-    }
-  },
-  "required": [
-    "budgets",
-    "exceptions",
-    "id",
-    "matchers",
-    "namingRules",
-    "profileRevision",
-    "schemaVersion",
-    "sourceRuntime",
-    "state"
-  ],
-  "title": "Profile",
-  "type": "object"
+  }
 }

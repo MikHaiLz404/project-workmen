@@ -15,7 +15,7 @@ pub use asset::{
 };
 pub use operation::{OperationEvent, OperationKind};
 pub use profile::{
-    AlphaPolicy, AssetRoleRef, Compression, NamingRule, Platform, PlatformBudget, PotNpot, Profile,
+    AlphaPolicy, Compression, NamingRule, Platform, PlatformBudget, PotNpot, Profile,
     ProfileException, ProfileId, ProfileMatcher, ProfileState, SourceRuntimeRelationship,
 };
 pub use validation::{Severity, SpecDiff, ValidationIssue};
