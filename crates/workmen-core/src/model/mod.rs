@@ -11,7 +11,8 @@ pub mod profile;
 pub mod validation;
 
 pub use asset::{
-    Asset, AssetFamily, AssetFormat, AssetId, AssetMetadata, AssetRole, FamilyId, Rect, ViewBox,
+    Asset, AssetFamily, AssetFormat, AssetId, AssetMetadata, AssetRole, FamilyId, PixelSize, Rect,
+    ViewBox,
 };
 pub use operation::{OperationEvent, OperationKind};
 pub use profile::{
