@@ -292,18 +292,42 @@ fn locked_project_schemas_match_checked_in_files() {
     let profile_path = schemas_dir.join("workmen-profile.schema.json");
 
     if !project_path.exists() || !profile_path.exists() {
-        // First run: write the generated content. Subsequent runs compare.
-        std::fs::create_dir_all(&schemas_dir).expect("create schemas dir");
-        std::fs::write(
-            &project_path,
-            serde_json::to_string_pretty(&project_json).expect("pretty print"),
-        )
-        .expect("write project schema");
-        std::fs::write(
-            &profile_path,
-            serde_json::to_string_pretty(&profile_json).expect("pretty print"),
-        )
-        .expect("write profile schema");
+        // The checked-in JSON Schemas are the source of truth. If they are
+        // missing, fail with a clear message: the test will not silently
+        // auto-write them, because doing so would let a fresh clone with
+        // the wrong files self-correct and pass CI. To regenerate, run
+        // `cargo run -p workmen-cli -- generate-schemas` (added in T7).
+        panic!(
+            "checked-in schema files are missing: {} and/or {}. \
+             regenerate with `cargo run -p workmen-cli -- generate-schemas` \
+             and commit the result.",
+            project_path.display(),
+            profile_path.display()
+        );
+    }
+
+    // Gate: both files must be tracked in the git index. A future
+    // contributor who deletes the files from the working tree (or
+    // untracks them) would otherwise pass this test on the first run
+    // because the auto-write branch (now removed) would silently
+    // recreate them. `git ls-files --error-unmatch` exits non-zero when
+    // any listed path is not in the index.
+    for path in [&project_path, &profile_path] {
+        let rel = path
+            .strip_prefix(workspace_root)
+            .expect("schema path is inside the workspace");
+        let status = std::process::Command::new("git")
+            .args(["ls-files", "--error-unmatch", "--"])
+            .arg(rel)
+            .current_dir(workspace_root)
+            .status()
+            .expect("git ls-files must run in CI; install git or set --workspace-manifest-path");
+        assert!(
+            status.success(),
+            "{} is not tracked by git. Re-add it with `git add {}` so the drift gate can rely on the index.",
+            rel.display(),
+            rel.display()
+        );
     }
 
     let on_disk_project = std::fs::read_to_string(&project_path).expect("read project schema");
