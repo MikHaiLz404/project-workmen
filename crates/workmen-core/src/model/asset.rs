@@ -62,7 +62,9 @@ pub enum AssetRole {
 /// [`AssetFormat::Other`] is an escape hatch for formats the scanner can
 /// recognise structurally but not yet inspect (e.g. a future HDR format);
 /// downstream code must handle it explicitly.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[derive(
+    Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
+)]
 #[serde(rename_all = "camelCase")]
 pub enum AssetFormat {
     Png,

@@ -5,6 +5,7 @@
 //! depends on the CLI. Domain types (`Asset`, `Profile`,
 //! `ValidationIssue`, ...) live in [`workmen_core::model`].
 
+pub mod classify;
 pub mod error;
 pub mod model;
 pub mod project;
