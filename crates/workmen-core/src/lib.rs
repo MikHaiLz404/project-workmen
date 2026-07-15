@@ -12,5 +12,6 @@ pub mod profile;
 pub mod project;
 pub mod scan;
 pub mod schema;
+pub mod validate;
 
 pub use error::WorkmenError;
