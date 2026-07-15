@@ -8,6 +8,7 @@
 pub mod classify;
 pub mod error;
 pub mod model;
+pub mod profile;
 pub mod project;
 pub mod scan;
 pub mod schema;
