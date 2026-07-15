@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-flight runs for the same branch on a new push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo registry and target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: cargo test
+        run: cargo test --workspace --all-targets
+
+  mvp-acceptance:
+    name: M1 Plan Acceptance Gate
+    runs-on: macos-latest
+    # Only run on the M1 epic branch (M1: Core + Scanner + Validation).
+    # The acceptance gate scans a real game project read-only; we run it
+    # on macOS because the dev acceptance target
+    # (project-merge-ios / Night Market Merge) is a macOS checkout.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release --bin workmen
+      # The M1 acceptance gate runs `workmen scan` against the
+      # Night Market Merge project (project-merge-ios). The
+      # scanner is read-only and must report zero
+      # WorkmenError::Io / path-policy violations. The artifact
+      # upload preserves the report for the PR.
+      - name: Scan Night Market Merge (read-only)
+        run: |
+          set -euo pipefail
+          if [ ! -d ../project-merge-ios ]; then
+            echo "::warning::../project-merge-ios not present; skipping M1 acceptance gate"
+            exit 0
+          fi
+          ./target/release/workmen scan ../project-merge-ios --format json > /tmp/m1-scan.json
+          ./target/release/workmen scan ../project-merge-ios --format text > /tmp/m1-scan.txt
+          cat /tmp/m1-scan.txt
+      - name: Upload scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m1-acceptance-report
+          path: /tmp/m1-scan.{json,txt}
