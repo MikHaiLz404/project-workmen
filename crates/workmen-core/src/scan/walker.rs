@@ -18,6 +18,7 @@ use std::time::SystemTime;
 
 use ignore::WalkBuilder;
 use rayon::prelude::*;
+use serde::{Deserialize, Serialize};
 
 use crate::WorkmenError;
 use crate::model::AssetFormat;
@@ -64,7 +65,7 @@ pub struct ScanRequest<'a> {
 /// chose not to hash (e.g. a JSON metadata file in a future
 /// revision) and `Some` for files that always need hashing
 /// (mirror-target candidates, raster art).
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScannedFile {
     pub path: String,
     pub format: AssetFormat,
@@ -74,7 +75,8 @@ pub struct ScannedFile {
 }
 
 /// Why a particular file could not be scanned successfully.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum DiagnosticKind {
     /// The file's bytes could not be decoded as the expected format
     /// (corrupt PNG, truncated JSON, etc.).
@@ -96,7 +98,7 @@ pub enum DiagnosticKind {
 }
 
 /// One per-file problem the scanner encountered.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScanDiagnostic {
     pub path: String,
     pub kind: DiagnosticKind,

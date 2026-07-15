@@ -10,6 +10,7 @@ pub mod error;
 pub mod model;
 pub mod profile;
 pub mod project;
+pub mod report;
 pub mod scan;
 pub mod schema;
 pub mod validate;
