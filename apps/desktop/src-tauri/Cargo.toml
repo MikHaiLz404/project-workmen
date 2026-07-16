@@ -1,0 +1,33 @@
+[package]
+name = "workmen-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "Workmen desktop workbench -- Tauri 2 host binary."
+
+[lib]
+name = "workmen_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "workmen-desktop"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+workmen-core = { path = "../../../crates/workmen-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tauri = { version = "2", features = [] }
+thiserror = { workspace = true }
+
+[features]
+# Default Tauri feature set; custom-protocol is needed when
+# `tauri dev` is run with a non-default URL.
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

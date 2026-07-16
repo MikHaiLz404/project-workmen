@@ -1,0 +1,22 @@
+{
+  "name": "workmen-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Workmen game asset workbench -- monorepo root.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "desktop:dev": "npm run -w @workmen/desktop dev",
+    "desktop:test": "npm run -w @workmen/desktop test",
+    "desktop:e2e": "npm run -w @workmen/desktop e2e",
+    "desktop:build": "npm run -w @workmen/desktop build",
+    "contracts:check": "npm run -w @workmen/contracts check",
+    "test": "cargo test --workspace",
+    "fmt": "cargo fmt --all -- --check"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
