@@ -8,11 +8,11 @@
 //! - `get_app_log_directory` -- returns the OS app-data log
 //!   directory. The shell uses it to open the log viewer.
 //!
-//! Both are read-only.
-
 pub mod commands;
 
 use tauri::Manager;
+
+use crate::commands::project::new_cancel_registry;
 
 /// Run the Tauri application. Called from `main.rs`.
 pub fn run() {
@@ -20,7 +20,11 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::system::get_system_info,
             commands::system::get_app_log_directory,
+            commands::project::open_project,
+            commands::project::scan_project,
+            commands::project::cancel_scan,
         ])
+        .manage(new_cancel_registry())
         .setup(|app| {
             // Log the app-data directory at startup so the bottom
             // console has something to show even before the user

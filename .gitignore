@@ -12,3 +12,12 @@ Cargo.lock.bak
 .idea/
 .vscode/
 *.swp
+
+# Tauri 2 build artifacts
+apps/desktop/src-tauri/gen/
+apps/desktop/dist/
+
+# Node
+node_modules/
+**/node_modules/
+package-lock.json

@@ -39,7 +39,7 @@ pub enum RootMarker {
 ///
 /// `path` is always an absolute path; it is the anchor used to resolve
 /// project-relative paths everywhere else in Workmen.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct ProjectRoot {
     pub(crate) path: PathBuf,
     pub(crate) marker: RootMarker,

@@ -22,7 +22,26 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": [
+        {
+          "identifier": "system-info",
+          "description": "Read-only system info commands (T2.T1).",
+          "windows": ["main"],
+          "permissions": [
+            "core:default",
+            "core:app:default"
+          ]
+        },
+        {
+          "identifier": "log-directory",
+          "description": "Read-only log directory access (T2.T1).",
+          "windows": ["main"],
+          "permissions": [
+            "core:path:default"
+          ]
+        }
+      ]
     }
   },
   "bundle": {
@@ -35,24 +54,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "capabilities": [
-    {
-      "identifier": "system-info",
-      "description": "Read-only system info commands (T2.T1).",
-      "windows": ["main"],
-      "permissions": [
-        "core:default",
-        "core:app:default"
-      ]
-    },
-    {
-      "identifier": "log-directory",
-      "description": "Read-only log directory access (T2.T1).",
-      "windows": ["main"],
-      "permissions": [
-        "core:path:default"
-      ]
-    }
-  ]
+  }
 }

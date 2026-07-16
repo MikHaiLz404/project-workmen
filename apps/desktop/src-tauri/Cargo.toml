@@ -17,13 +17,13 @@ name = "workmen-desktop"
 path = "src/main.rs"
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { workspace = true }
 
 [dependencies]
 workmen-core = { path = "../../../crates/workmen-core" }
 serde = { workspace = true }
 serde_json = { workspace = true }
-tauri = { version = "2", features = [] }
+tauri = { workspace = true }
 thiserror = { workspace = true }
 
 [features]
