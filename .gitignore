@@ -15,9 +15,10 @@ Cargo.lock.bak
 
 # Tauri 2 build artifacts
 apps/desktop/src-tauri/gen/
+
+# Frontend build output (rebuilt via `npm run frontend:build`)
 apps/desktop/dist/
 
 # Node
 node_modules/
 **/node_modules/
-package-lock.json

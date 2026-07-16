@@ -4,9 +4,7 @@
   "version": "0.1.0",
   "identifier": "dev.workmen.desktop",
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run frontend:build",
     "frontendDist": "../dist"
   },
   "app": {

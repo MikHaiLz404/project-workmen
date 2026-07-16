@@ -2,17 +2,15 @@
   "name": "workmen-workspace",
   "version": "0.1.0",
   "private": true,
-  "description": "Workmen game asset workbench -- monorepo root.",
+  "description": "Workmen game asset workbench -- monorepo root (Rust + JS frontend for Tauri 2).",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "desktop:dev": "npm run -w @workmen/desktop dev",
-    "desktop:test": "npm run -w @workmen/desktop test",
-    "desktop:e2e": "npm run -w @workmen/desktop e2e",
-    "desktop:build": "npm run -w @workmen/desktop build",
-    "contracts:check": "npm run -w @workmen/contracts check",
+    "tsc": "tsc -p apps/desktop/tsconfig.json --noEmit",
+    "tsc:build": "tsc -p apps/desktop/tsconfig.json",
+    "frontend:build": "npm run tsc:build",
     "test": "cargo test --workspace",
     "fmt": "cargo fmt --all -- --check"
   },
