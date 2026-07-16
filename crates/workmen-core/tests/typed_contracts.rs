@@ -37,7 +37,13 @@ fn contracts_path() -> std::path::PathBuf {
 /// Names of the core types we expect to be in the generated
 /// TypeScript file. The Drift is fatal: missing any of these
 /// means the contracts package is stale.
-const EXPECTED_TYPES: &[&str] = &["Asset", "Profile", "ValidationIssue"];
+const EXPECTED_TYPES: &[&str] = &[
+    "Asset",
+    "Profile",
+    "ValidationIssue",
+    "ProjectSnapshot",
+    "ScanProgress",
+];
 
 #[test]
 fn generated_typescript_contracts_exist() {

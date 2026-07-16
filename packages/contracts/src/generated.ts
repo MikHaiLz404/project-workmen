@@ -112,6 +112,58 @@ export interface PlatformBudget {
   colorSpace: string;
 }
 
+export interface ProjectSnapshot {
+  requestId: string;
+  root: string;
+  files: Array<{
+    /** File path relative to the project root. */
+    path: string;
+    /** Stable, deterministic identity for the asset. */
+    id: string;
+    role:
+      | "source"
+      | "runtime"
+      | "derived"
+      | "mirrorTarget"
+      | "excluded"
+      | "unclassified";
+    format: string;
+    encodedBytes: number;
+    blake3?: string;
+  }>;
+  diagnostics: Array<{
+    path: string;
+    kind:
+      | "decodeError"
+      | "ioError"
+      | "symlinkSkipped"
+      | "excluded"
+      | "unsupportedFormat";
+    message: string;
+  }>;
+  durationMs: number;
+}
+
+export interface ScanProgress {
+  requestId: string;
+  phase: "opening" | "scanning" | "ready" | "failed" | "cancelled";
+  completed: number;
+  total: number | null;
+  relativePath: string | null;
+}
+
+export interface ProjectPhase {
+  phase: "idle" | "opening" | "scanning" | "ready" | "failed" | "cancelled";
+}
+
+export interface ProjectAction {
+  type:
+    | { kind: "open"; requestId: string }
+    | { kind: "progress"; value: ScanProgress }
+    | { kind: "ready"; requestId: string; snapshot: ProjectSnapshot }
+    | { kind: "failed"; requestId: string; message: string };
+}
+
 export interface ValidationIssue {
   assetPath: string;
   diff: SpecDiff;

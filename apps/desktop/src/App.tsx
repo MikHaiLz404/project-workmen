@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { WorkmenBackend } from "@workmen/contracts";
+import { OpenProject } from "./features/project/OpenProject";
 
 /**
  * The four-region shell required by the T2.T1 plan:
@@ -16,16 +17,12 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // The Tauri backend exposes a `__TAURI_INTERNALS__` global.
-    // A real desktop build wires it; a web-only build (vite
-    // dev) does not. We surface the difference so the user
-    // knows whether the typed command boundary is live.
     const tauri = (window as unknown as { __TAURI_INTERNALS__?: unknown })
       .__TAURI_INTERNALS__;
     setBackendAvailable(typeof tauri !== "undefined");
     if (typeof tauri === "undefined") {
       setError(
-        "Tauri backend unavailable: command envelope tests still pass; run via `npm run desktop:dev` for the desktop shell.",
+        "Tauri backend unavailable: command envelope tests still pass; run via `npm run frontend:build && tauri dev` for the desktop shell.",
       );
     }
   }, []);
@@ -58,7 +55,7 @@ export default function App() {
         </ul>
       </nav>
       <main className="shell-workspace" data-testid="shell-workspace">
-        <p>Open a project to begin.</p>
+        <OpenProject />
       </main>
       <footer className="shell-console" data-testid="shell-console">
         {error ? (
