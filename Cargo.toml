@@ -55,3 +55,10 @@ insta = { version = "1", features = ["yaml"] }
 # Tauri 2 desktop host
 tauri = { version = "2", features = [] }
 tauri-build = { version = "2", features = [] }
+# Local tao 0.35.3 with macOS Sequoia panic mitigation.
+# See patches/tao-0.35.3/README.md for context. This redirect is a
+# path override; it does not change the crate version (still 0.35.3),
+# so any feature set or dependency surface requested by tauri / wry
+# continues to resolve against this patched source.
+[patch.crates-io]
+tao = { path = "patches/tao-0.35.3" }
