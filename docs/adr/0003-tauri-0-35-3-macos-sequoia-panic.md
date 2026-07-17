@@ -2,7 +2,17 @@
 
 ## Status
 
-**Mitigated by Path C** (vendored `tao` patch). Commit `d6e4b3d` (see git log) adds `patches/tao-0.35.3/` and a `[patch.crates-io] tao = { path = ... }` redirect in workspace `Cargo.toml`. The patch wraps `AppState::launched` (the only function called from `did_finish_launching`) in `std::panic::catch_unwind`; a panic from `apply_activation_policy` or `MainThreadMarker::new().unwrap()` is logged to stderr instead of unwinding through the FFI callback. `target/debug/workmen-desktop` now stays alive past the 3-second crash window on the user's macOS Sequoia 26.5.2 box.
+**Mitigated by Path C** (vendored `tao` patch). Commit `d8fd60c` (see git log) adds `patches/tao-0.35.3/` and a `[patch.crates-io] tao = { path = ... }` redirect in workspace `Cargo.toml`. The patch wraps `AppState::launched` (the only function called from `did_finish_launching`) in `std::panic::catch_unwind`; a panic from `apply_activation_policy` or `MainThreadMarker::new().unwrap()` is logged to stderr instead of unwinding through the FFI callback. `target/debug/workmen-desktop` now stays alive past the 3-second crash window on the user's macOS Sequoia 26.5.2 box.
+
+## Observed status on the user's box
+
+- Window title: **Workmen** (correct, per tauri.conf.json `app.windows[0].title`).
+- Window chrome: macOS traffic-light buttons render correctly, window is full ~1280×800.
+- Body content: **blank (black)**. The webview opens but does not render the React shell.
+- Backend: `target/debug/workmen-desktop` prints `[workmen] app log dir: /Users/jojo/Library/Logs/dev.workmen.desktop` once (the `setup()` callback ran). No crash reports generated under `~/Library/Logs/DiagnosticReports/` since `d8fd60c`.
+- Process liveness: stays in `Ss` (sleeping waiting for input) past 13 seconds. Previously crashed within ~3 seconds with SIGABRT.
+
+The patch successfully removes the launch panic. The webview content-rendering issue is a separate problem (WKWebView scheme/asset-loading on macOS Sequoia 26.5.x); it is **not in scope for this milestone**. The user chose Option 1 (stop at panic-fix). The CLI surface remains the user-facing interface for asset inspection in this milestone.
 
 ## Context
 
